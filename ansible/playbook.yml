@@ -1,0 +1,45 @@
+---
+- name: Install Docker Engine and Docker Compose locally
+  hosts: localhost
+  connection: local
+  become: true
+  vars:
+    docker_packages:
+      - docker.io
+      - docker-compose-plugin
+  tasks:
+    - name: Ensure apt cache is up-to-date
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Docker and Docker Compose
+      apt:
+        name: "{{ docker_packages }}"
+        state: present
+
+    - name: Ensure Docker service is enabled and started
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add current user to docker group (so you can run docker without sudo)
+      user:
+        name: "{{ lookup('env','USER') | default(ansible_user_id) }}"
+        groups: docker
+        append: true
+
+    - name: Verify Docker and Compose installation
+      shell: |
+        set -e
+        docker --version
+        docker compose version || docker-compose --version
+      args:
+        warn: false
+      register: docker_versions
+      changed_when: false
+
+    - name: Show versions
+      debug:
+        var: docker_versions.stdout_lines
