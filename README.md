@@ -1,4 +1,4 @@
-# Terraform Quick Start (Beginner Friendly)
+# Terraform Quick Start 
 
 This repo contains a minimal Terraform setup to create an AWS VPC, subnet, security group, and an Ubuntu EC2 instance.
 
